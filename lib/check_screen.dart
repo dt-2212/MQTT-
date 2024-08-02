@@ -16,6 +16,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
   final TextEditingController _yearOfBirthController = TextEditingController();
   late MqttServerClient client;
   final String topic = 'test/topic';
+  late String messMQTT = 'No message';
 
   @override
   void initState() {
@@ -58,6 +59,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
     final String message =
         MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
     print('Received message: $message from topic: ${event[0].topic}');
+    setState(() {
+      messMQTT = message;
+    });
   }
 
 //==============================================================================
@@ -87,19 +91,56 @@ class _VerificationScreenState extends State<VerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Verification')),
+      appBar: AppBar(
+        title: const Text('Verification'),
+        backgroundColor: Colors.blue,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text('Enter your year of birth for verification'),
-            TextField(
-              controller: _yearOfBirthController,
-              decoration: InputDecoration(labelText: 'Year of Birth'),
+            const SizedBox(
+              height: 10,
             ),
-            ElevatedButton(
-              onPressed: _verifyYearOfBirth,
-              child: Text('Verify'),
+            const Text(
+              'Enter your year of birth for verification',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold  ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _yearOfBirthController,
+                    decoration:
+                        const InputDecoration(labelText: 'Year of Birth'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: _verifyYearOfBirth,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.cyan,
+                  ),
+                  child: const Text(
+                    'Verify ',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            const Text(
+              'Messages',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold ),
+            ),
+            Text(
+              messMQTT,
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),
@@ -118,7 +159,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
   void _sendVerificationResult(bool success) {
     final builder = MqttClientPayloadBuilder();
     builder.addString(
-        'User ${widget.username} year of birth verification ${success ? 'successful' : 'failed'}');
+        'User ${widget.username}: Year of birth verification ${success ? 'successful' : 'failed'}');
     if (builder.payload != null) {
       client.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
     }
@@ -127,11 +168,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
   void _showDialog(bool success) {
     showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(success ? 'Successful' : 'failed'),
             content: Text(success
-                ? 'You have successfully verified your year of birth.'
+                ? 'Verification successfully.'
                 : 'Verification failed. Please try again.'),
             actions: [
               TextButton(
@@ -141,9 +183,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       Navigator.of(context).pop();
                     }
                   },
-                  child: Text('Done'))
+                  child: const Text('Done'))
             ],
           );
         });
   }
+//==============================================================================
 }

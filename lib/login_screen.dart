@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'check_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -14,10 +16,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Center(child: Text('Login')),
+        title: const Center(
+          child: Text(
+            'APP',
+          ),
+        ),
+        backgroundColor: Colors.blue,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Center(
           child: Column(
             children: [
@@ -33,11 +40,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Password:',
                 ),
+                obscureText: true,
               ),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _login,
-                child: Text('Login'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.cyan,
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(color: Colors.white),
+                ),
               )
             ],
           ),
